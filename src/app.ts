@@ -54,6 +54,13 @@ if (!allowedLevels.includes(level)) {
         error: 'timestamp, level, service, and message are required',
       });
     }
+    const parsedTimestamp = new Date(timestamp);
+
+if (Number.isNaN(parsedTimestamp.getTime())) {
+  return reply.code(400).send({
+    error: 'timestamp must be a valid ISO 8601 date',
+  });
+}
 
     const result = await pool.query(
       `INSERT INTO logs

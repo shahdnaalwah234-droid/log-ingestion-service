@@ -59,17 +59,71 @@ export async function buildApp() {
     return reply.code(201).send(result.rows[0]);
   });
 
-  // Get all logs
-  app.get('/logs', async () => {
+  // Get logs with filtering and pagination
+  app.get('/logs', async (request, reply) => {
+    const query = request.query as {
+      level?: string;
+      service?: string;
+      limit?: string;
+      offset?: string;
+    };
+
+    const {
+      level,
+      service,
+      limit: limitParam,
+      offset: offsetParam,
+    } = query;
+
+    const limit = Math.min(
+      Math.max(parseInt(limitParam || '50', 10) || 50, 1),
+      100
+    );
+
+    const offset = Math.max(
+      parseInt(offsetParam || '0', 10) || 0,
+      0
+    );
+
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+
+    if (level) {
+      values.push(level);
+      conditions.push(`level = $${values.length}`);
+    }
+
+    if (service) {
+      values.push(service);
+      conditions.push(`service = $${values.length}`);
+    }
+
+    const whereClause =
+      conditions.length > 0
+        ? `WHERE ${conditions.join(' AND ')}`
+        : '';
+
+    values.push(limit);
+    const limitPosition = values.length;
+
+    values.push(offset);
+    const offsetPosition = values.length;
+
     const result = await pool.query(
       `SELECT *
        FROM logs
-       ORDER BY timestamp DESC, id DESC`
+       ${whereClause}
+       ORDER BY timestamp DESC, id DESC
+       LIMIT $${limitPosition}
+       OFFSET $${offsetPosition}`,
+      values
     );
 
     return {
       logs: result.rows,
       count: result.rows.length,
+      limit,
+      offset,
     };
   });
 

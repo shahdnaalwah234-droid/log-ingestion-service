@@ -41,6 +41,13 @@ export async function buildApp() {
       message,
       attributes = {},
     } = body;
+    const allowedLevels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
+
+if (!allowedLevels.includes(level)) {
+  return reply.code(400).send({
+    error: 'level must be one of DEBUG, INFO, WARN, ERROR',
+  });
+}
 
     if (!timestamp || !level || !service || !message) {
       return reply.code(400).send({

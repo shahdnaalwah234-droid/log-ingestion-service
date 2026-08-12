@@ -78,9 +78,10 @@ if (Number.isNaN(parsedTimestamp.getTime())) {
     const query = request.query as {
       level?: string;
       service?: string;
+      search?: string;
       limit?: string;
       offset?: string;
-    };
+};
 
     const {
       level,
@@ -101,7 +102,10 @@ if (Number.isNaN(parsedTimestamp.getTime())) {
 
     const conditions: string[] = [];
     const values: unknown[] = [];
-
+    if (query.search) {
+      values.push(`%${query.search}%`);
+      conditions.push(`message ILIKE $${values.length}`);
+}
     if (level) {
       values.push(level);
       conditions.push(`level = $${values.length}`);

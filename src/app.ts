@@ -171,6 +171,41 @@ if (query.to) {
       offset,
     };
   });
+  // Get log statistics
+app.get('/logs/stats', async () => {
+  const totalResult = await pool.query(
+    `SELECT COUNT(*)::int AS total FROM logs`
+  );
 
+  const levelResult = await pool.query(
+    `SELECT level, COUNT(*)::int AS count
+     FROM logs
+     GROUP BY level
+     ORDER BY level`
+  );
+
+  const serviceResult = await pool.query(
+    `SELECT service, COUNT(*)::int AS count
+     FROM logs
+     GROUP BY service
+     ORDER BY service`
+  );
+
+  const byLevel: Record<string, number> = {};
+  for (const row of levelResult.rows) {
+    byLevel[row.level] = row.count;
+  }
+
+  const byService: Record<string, number> = {};
+  for (const row of serviceResult.rows) {
+    byService[row.service] = row.count;
+  }
+
+  return {
+    total: totalResult.rows[0].total,
+    byLevel,
+    byService,
+  };
+});
   return app;
 }

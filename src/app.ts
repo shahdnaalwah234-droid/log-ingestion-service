@@ -75,12 +75,14 @@ if (Number.isNaN(parsedTimestamp.getTime())) {
 
   // Get logs with filtering and pagination
   app.get('/logs', async (request, reply) => {
-    const query = request.query as {
-      level?: string;
-      service?: string;
-      search?: string;
-      limit?: string;
-      offset?: string;
+ const query = request.query as {
+  level?: string;
+  service?: string;
+  search?: string;
+  from?: string;
+  to?: string;
+  limit?: string;
+  offset?: string;
 };
 
     const {
@@ -105,6 +107,31 @@ if (Number.isNaN(parsedTimestamp.getTime())) {
     if (query.search) {
       values.push(`%${query.search}%`);
       conditions.push(`message ILIKE $${values.length}`);
+}
+if (query.from) {
+  const fromDate = new Date(query.from);
+
+  if (Number.isNaN(fromDate.getTime())) {
+    return reply.code(400).send({
+      error: 'from must be a valid ISO 8601 date',
+    });
+  }
+
+  values.push(fromDate);
+  conditions.push(`timestamp >= $${values.length}`);
+}
+
+if (query.to) {
+  const toDate = new Date(query.to);
+
+  if (Number.isNaN(toDate.getTime())) {
+    return reply.code(400).send({
+      error: 'to must be a valid ISO 8601 date',
+    });
+  }
+
+  values.push(toDate);
+  conditions.push(`timestamp <= $${values.length}`);
 }
     if (level) {
       values.push(level);

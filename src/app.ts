@@ -207,5 +207,29 @@ app.get('/logs/stats', async () => {
     byService,
   };
 });
+  // Global error handler
+  app.setErrorHandler((error, request, reply) => {
+    request.log.error(error);
+
+ app.setErrorHandler((error, request, reply) => {
+  request.log.error(error);
+
+  const dbError = error as Error & { code?: string };
+
+  if (dbError.code === '22007') {
+    return reply.code(400).send({
+      error: 'Invalid date or timestamp format',
+    });
+  }
+
+  return reply.code(500).send({
+    error: 'Internal server error',
+  });
+});
+
+    return reply.code(500).send({
+      error: 'Internal server error',
+    });
+  });
   return app;
 }

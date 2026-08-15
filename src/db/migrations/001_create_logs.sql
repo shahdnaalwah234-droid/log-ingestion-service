@@ -16,6 +16,3 @@ ON logs (service, timestamp DESC);
 
 CREATE INDEX idx_logs_level_timestamp
 ON logs (level, timestamp DESC);
-
-CREATE INDEX idx_logs_attributes
-ON logs USING GIN (attributes);

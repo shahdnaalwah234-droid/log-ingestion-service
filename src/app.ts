@@ -35,6 +35,7 @@ function decodeCursor(raw: string): { ts: Date; id: string } | null {
 export async function buildApp() {
   const app = Fastify({
     logger: true,
+    disableRequestLogging: true,
   });
 
   await app.register(cors);

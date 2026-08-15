@@ -1,1 +1,2 @@
-FROM postgres:16 COPY src/db/migrations/001_create_logs.sql /docker-entrypoint-initdb.d/001_create_logs.sql
+FROM postgres:16
+COPY src/db/migrations/001_create_logs.sql /docker-entrypoint-initdb.d/001_create_logs.sql

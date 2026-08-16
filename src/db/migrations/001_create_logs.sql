@@ -1,5 +1,5 @@
-CREATE TABLE logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+CREATE UNLOGGED TABLE logs (
+    id UUID PRIMARY KEY,
     timestamp TIMESTAMPTZ NOT NULL,
     level TEXT NOT NULL,
     service TEXT NOT NULL,
@@ -11,8 +11,5 @@ CREATE TABLE logs (
 CREATE INDEX idx_logs_timestamp_id
 ON logs (timestamp DESC, id DESC);
 
-CREATE INDEX idx_logs_service_timestamp
-ON logs (service, timestamp DESC);
-
-CREATE INDEX idx_logs_level_timestamp
-ON logs (level, timestamp DESC);
+CREATE INDEX idx_logs_service_level_timestamp
+ON logs (service, level, timestamp DESC);

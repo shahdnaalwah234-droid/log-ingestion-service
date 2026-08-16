@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { pool } from './db/database';
+import { randomUUID } from 'node:crypto';
 
 const ALLOWED_LEVELS = ['debug', 'info', 'warn', 'error'];
 const ALLOWED_GROUP_BY = ['service', 'level'];
@@ -77,7 +78,7 @@ export async function buildApp() {
       return reply.code(400).send({ error: 'logs array must not be empty' });
     }
 
-    const valid: { timestamp: string; level: string; service: string; message: string; attributes: unknown }[] = [];
+    const valid: { id: string; timestamp: string; level: string; service: string; message: string; attributes: unknown }[] = [];
     const rejected: { index: number; reason: string }[] = [];
 
     body.logs.forEach((entry, index) => {
@@ -102,6 +103,7 @@ export async function buildApp() {
       }
 
       valid.push({
+        id: randomUUID(),
         timestamp: timestamp as string,
         level,
         service: service as string,
@@ -114,13 +116,13 @@ export async function buildApp() {
       const values: unknown[] = [];
       const placeholders: string[] = [];
       valid.forEach((row, i) => {
-        const base = i * 5;
-        placeholders.push(`($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5})`);
-        values.push(row.timestamp, row.level, row.service, row.message, row.attributes);
+        const base = i * 6;
+        placeholders.push(`($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6})`);
+        values.push(row.id, row.timestamp, row.level, row.service, row.message, row.attributes);
       });
 
       await pool.query(
-        `INSERT INTO logs (timestamp, level, service, message, attributes)
+        `INSERT INTO logs (id, timestamp, level, service, message, attributes)
          VALUES ${placeholders.join(', ')}`,
         values
       );

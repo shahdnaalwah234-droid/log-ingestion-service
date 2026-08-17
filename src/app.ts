@@ -246,7 +246,7 @@ export async function buildApp() {
     const groupClause = groupBy ? `, ${groupBy}` : '';
 
     const result = await pool.query(
-      `SELECT to_timestamp(floor(extract(epoch FROM timestamp) / $3) * $3) AS bucket_start,
+      `SELECT date_bin(($3 || ' seconds')::interval, timestamp, TIMESTAMPTZ '2000-01-01') AS bucket_start,
               COUNT(*)::int AS count
               ${groupSelect}
        FROM logs

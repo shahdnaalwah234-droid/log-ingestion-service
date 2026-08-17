@@ -23,7 +23,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: logs_db
-    command: ["postgres", "-c", "synchronous_commit=off", "-c", "shared_buffers=256MB", "-c", "max_wal_size=2GB", "-c", "commit_delay=1000", "-c", "commit_siblings=5"]
+    command: ["postgres", "-c", "synchronous_commit=off", "-c", "shared_buffers=256MB", "-c", "max_wal_size=2GB", "-c", "commit_delay=1000", "-c", "commit_siblings=5", "-c", "work_mem=32MB"]
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
